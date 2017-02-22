@@ -19,13 +19,23 @@ LeptonThread::~LeptonThread() {
 
 void LeptonThread::run()
 {
+	bool open = false;
+	int active_port;
+
 	//create the initial image
 	myImage = QImage(80, 60, QImage::Format_RGB888);
 
 	//open spi port
-	SpiOpenPort(0);
+	qDebug() << "Opening SPI port 0";
+	active_port = 0;
+	open = SpiOpenPort(active_port);
+	if (!open) {
+		qDebug() << "Opening SPI port 1";
+		active_port = 1;
+		open = SpiOpenPort(active_port);
+	}
 
-	while(true) {
+	while(open) {
 
 		//read data packets from lepton over SPI
 		int resets = 0;
@@ -99,8 +109,11 @@ void LeptonThread::run()
 
 	}
 	
-	//finally, close SPI port just bcuz
-	SpiClosePort(0);
+	// Close SPI port
+	if (open) {
+		qDebug() << "Closing SPI port " << active_port;
+		SpiClosePort(active_port);
+	}
 }
 
 void LeptonThread::performFFC() {

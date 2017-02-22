@@ -7,7 +7,8 @@ unsigned char spi_mode = SPI_MODE_3;
 unsigned char spi_bitsPerWord = 8;
 unsigned int spi_speed = 10000000;
 
-int SpiOpenPort (int spi_device)
+// Returns true for success, false for fail
+bool SpiOpenPort (int spi_device)
 {
 	int status_value = -1;
 	int *spi_cs_fd;
@@ -41,56 +42,58 @@ int SpiOpenPort (int spi_device)
 	if (*spi_cs_fd < 0)
 	{
 		perror("Error - Could not open SPI device");
-		exit(1);
+		return false;
 	}
 
 	status_value = ioctl(*spi_cs_fd, SPI_IOC_WR_MODE, &spi_mode);
 	if(status_value < 0)
 	{
 		perror("Could not set SPIMode (WR)...ioctl fail");
-		exit(1);
+		return false;
 	}
 
 	status_value = ioctl(*spi_cs_fd, SPI_IOC_RD_MODE, &spi_mode);
 	if(status_value < 0)
 	{
 		perror("Could not set SPIMode (RD)...ioctl fail");
-		exit(1);
+		return false;
 	}
 
 	status_value = ioctl(*spi_cs_fd, SPI_IOC_WR_BITS_PER_WORD, &spi_bitsPerWord);
 	if(status_value < 0)
 	{
 		perror("Could not set SPI bitsPerWord (WR)...ioctl fail");
-		exit(1);
+		return false;
 	}
 
 	status_value = ioctl(*spi_cs_fd, SPI_IOC_RD_BITS_PER_WORD, &spi_bitsPerWord);
 	if(status_value < 0)
 	{
 		perror("Could not set SPI bitsPerWord(RD)...ioctl fail");
-		exit(1);
+		return false;
 	}
 
 	status_value = ioctl(*spi_cs_fd, SPI_IOC_WR_MAX_SPEED_HZ, &spi_speed);
 	if(status_value < 0)
 	{
 		perror("Could not set SPI speed (WR)...ioctl fail");
-		exit(1);
+		return false;
 	}
 
 	status_value = ioctl(*spi_cs_fd, SPI_IOC_RD_MAX_SPEED_HZ, &spi_speed);
 	if(status_value < 0)
 	{
 		perror("Could not set SPI speed (RD)...ioctl fail");
-		exit(1);
+		return false;
 	}
-	return(status_value);
+
+	return true;
 }
 
-int SpiClosePort(int spi_device)
+// Returns true for successful close, false for failed
+bool SpiClosePort(int spi_device)
 {
-		int status_value = -1;
+	int status_value = -1;
 	int *spi_cs_fd;
 
 	if (spi_device)
@@ -103,7 +106,8 @@ int SpiClosePort(int spi_device)
 	if(status_value < 0)
 	{
 		perror("Error - Could not close SPI device");
-		exit(1);
+		return false;
 	}
-	return(status_value);
+
+	return true;
 }

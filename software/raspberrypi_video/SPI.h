@@ -31,7 +31,7 @@ extern unsigned char spi_mode;
 extern unsigned char spi_bitsPerWord;
 extern unsigned int spi_speed;
 
-int SpiOpenPort(int spi_device);
-int SpiClosePort(int spi_device);
+bool SpiOpenPort(int spi_device);
+bool SpiClosePort(int spi_device);
 
 #endif
