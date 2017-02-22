@@ -10,7 +10,7 @@
 #include <QPushButton>
 
 #include "LeptonThread.h"
-#include "MyLabel.h"
+#include "ImageWidget.h"
 
 int main( int argc, char **argv )
 {
@@ -31,19 +31,19 @@ int main( int argc, char **argv )
 		}
 	}
 
-	//create a label, and set it's image to the placeholder
-	MyLabel myLabel(myWidget);
-	myLabel.setGeometry(10, 10, 320, 240);
-	myLabel.setPixmap(QPixmap::fromImage(myImage));
+	//create an image widget, and set it's image to the placeholder
+	ImageWidget imageWidget(myWidget);
+	imageWidget.setGeometry(10, 10, 320, 240);
+	imageWidget.setImage(myImage);
 
 	//create a FFC button
 	QPushButton *button1 = new QPushButton("Perform FFC", myWidget);
 	button1->setGeometry(320/2-50, 290-35, 100, 30);
 
 	//create a thread to gather SPI data
-	//when the thread emits updateImage, the label should update its image accordingly
+	//when the thread emits updateImage, the image widget should update its image accordingly
 	LeptonThread *thread = new LeptonThread();
-	QObject::connect(thread, SIGNAL(updateImage(QImage)), &myLabel, SLOT(setImage(QImage)));
+	QObject::connect(thread, SIGNAL(updateImage(QImage)), &imageWidget, SLOT(setImage(QImage)));
 	
 	//connect ffc button to the thread's ffc action
 	QObject::connect(button1, SIGNAL(clicked()), thread, SLOT(performFFC()));
