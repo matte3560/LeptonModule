@@ -24,7 +24,7 @@ void LeptonThread::run()
 
 	//open spi port
 	int port = 1;
-	if (SpiOpenPort(1) < 0)
+	if (SpiOpenPort(port) < 0)
 		return; // Port failed to open
 
 	while(true) {
