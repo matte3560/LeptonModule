@@ -20,16 +20,20 @@ class ImageWidget : public QOpenGLWidget, protected QOpenGLFunctions
 	Q_OBJECT;
 
 	public:
-		ImageWidget(QWidget *parent);
+		ImageWidget(QWidget *parent = NULL);
 		~ImageWidget();
 
 	public slots:
 		void setImage(QImage image);
 
 	protected:
+		// OpenGL
 		void initializeGL();
 		void resizeGL(int w, int h);
 		void paintGL();
+
+		// Window fullscreen
+		void mouseDoubleClickEvent(QMouseEvent* event);
 
 	private:
 		// Variables related to OpenGL rendering

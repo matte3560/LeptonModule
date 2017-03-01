@@ -33,26 +33,27 @@ ImageWidget::~ImageWidget()
 
 void ImageWidget::setImage(QImage image)
 {
-	if (this->context() != 0)
+	if (context() != 0)
 	{
 		// Check if size and format matches previous image
 		if (image.size() == m_imgres && image.format() == m_imgformat)
 		{
-			this->makeCurrent();
+			makeCurrent();
 			m_texture->setData(image, QOpenGLTexture::DontGenerateMipMaps);
-			this->doneCurrent();
+			doneCurrent();
 		}
 		else
 		{
-			this->makeCurrent();
+			makeCurrent();
 			m_texture->destroy();
 			m_texture->create();
 			m_texture->setData(image, QOpenGLTexture::DontGenerateMipMaps);
-			this->doneCurrent();
+			m_imgres = image.size();
+			m_imgformat = image.format();
+			doneCurrent();
 		}
 
-
-		this->update();
+		update();
 	}
 }
 
@@ -160,13 +161,9 @@ void ImageWidget::resizeGL(int w, int h)
 	translate.translate(m_pos);
 
 	// Set MVP transform
-	m_mvp = projection * translate * rotate * scale * m_mvp;
-
-	if (m_program != 0 && m_program->isLinked())
-	{
-		int location = m_program->uniformLocation("matrix");
-		m_program->setUniformValue(location, m_mvp);
-	}
+	m_mvp = projection * translate * rotate * scale;
+	int location = m_program->uniformLocation("matrix");
+	m_program->setUniformValue(location, m_mvp);
 }
 
 void ImageWidget::paintGL()
@@ -183,4 +180,14 @@ void ImageWidget::paintGL()
 	GLenum error = glGetError();
 	if (error != GL_NO_ERROR)
 		qInfo() << "GL error:" << error;
+}
+
+
+void ImageWidget::mouseDoubleClickEvent(QMouseEvent* event)
+{
+	// Toggle fullscreen mode
+	if (isFullScreen())
+		showNormal();
+	else
+		showFullScreen();
 }
