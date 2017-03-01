@@ -33,7 +33,14 @@ ImageWidget::~ImageWidget()
 
 void ImageWidget::setImage(QImage image)
 {
-	m_texture->setData(image, QOpenGLTexture::DontGenerateMipMaps);
+	if (this->context() != 0)
+	{
+		this->makeCurrent();
+		m_texture->setData(image, QOpenGLTexture::DontGenerateMipMaps);
+		this->doneCurrent();
+		qInfo() << "update";
+		this->update();
+	}
 }
 
 
@@ -51,7 +58,7 @@ void ImageWidget::initializeGL()
 	m_program->addShaderFromSourceCode(QOpenGLShader::Vertex,
 			"attribute highp vec3 vertex;\n"
 			"attribute highp vec2 uv;\n"
-			"varying vec2 tex_coord;\n"
+			"varying highp vec2 tex_coord;\n"
 			"uniform highp mat4 matrix;\n"
 			"void main(void)\n"
 			"{\n"
@@ -60,7 +67,7 @@ void ImageWidget::initializeGL()
 			"}");
 	m_program->addShaderFromSourceCode(QOpenGLShader::Fragment,
 			//"uniform mediump vec4 color;\n"
-			"varying vec2 tex_coord;\n"
+			"varying highp vec2 tex_coord;\n"
 			"uniform sampler2D texture;\n"
 			"void main(void)\n"
 			"{\n"
