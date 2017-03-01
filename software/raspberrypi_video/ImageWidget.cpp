@@ -35,10 +35,23 @@ void ImageWidget::setImage(QImage image)
 {
 	if (this->context() != 0)
 	{
-		this->makeCurrent();
-		m_texture->setData(image, QOpenGLTexture::DontGenerateMipMaps);
-		this->doneCurrent();
-		qInfo() << "update";
+		// Check if size and format matches previous image
+		if (image.size() == m_imgres && image.format() == m_imgformat)
+		{
+			this->makeCurrent();
+			m_texture->setData(image, QOpenGLTexture::DontGenerateMipMaps);
+			this->doneCurrent();
+		}
+		else
+		{
+			this->makeCurrent();
+			m_texture->destroy();
+			m_texture->create();
+			m_texture->setData(image, QOpenGLTexture::DontGenerateMipMaps);
+			this->doneCurrent();
+		}
+
+
 		this->update();
 	}
 }
