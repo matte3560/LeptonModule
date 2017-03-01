@@ -17,15 +17,13 @@ ImageWidget::ImageWidget(QWidget *parent) : QOpenGLWidget(parent),
 	m_aspect(80.0f/60.0f),
 	m_pos(0.0f, 0.0f, -3.0f),
 
-	m_imgres(0,0),
-	m_imgformat(QImage::Format_Invalid)
+	m_imgres(0,0)
 {
 }
 
 ImageWidget::~ImageWidget()
 {
 	delete m_program;
-	delete m_texture;
 }
 
 
@@ -35,21 +33,27 @@ void ImageWidget::setImage(QImage image)
 {
 	if (context() != 0)
 	{
+		if (image.format() != QImage::Format_RGBA8888)
+			image = image.convertToFormat(QImage::Format_RGBA8888);
+
 		// Check if size and format matches previous image
-		if (image.size() == m_imgres && image.format() == m_imgformat)
+		if (image.size() == m_imgres)
 		{
 			makeCurrent();
-			m_texture->setData(image, QOpenGLTexture::DontGenerateMipMaps);
+			glBindTexture(GL_TEXTURE_2D, m_texture);
+			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, image.width(), image.height(), GL_RGBA, GL_UNSIGNED_BYTE,
+					image.bits());
 			doneCurrent();
 		}
 		else
 		{
 			makeCurrent();
-			m_texture->destroy();
-			m_texture->create();
-			m_texture->setData(image, QOpenGLTexture::DontGenerateMipMaps);
+			glBindTexture(GL_TEXTURE_2D, m_texture);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.width(), image.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE,
+					image.bits());
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			m_imgres = image.size();
-			m_imgformat = image.format();
 			doneCurrent();
 		}
 
@@ -92,10 +96,15 @@ void ImageWidget::initializeGL()
 	qInfo() << "log()" << m_program->log();
 	m_program->bind();
 
-	// Create texture and fill with red image
-	QImage red(80, 60, QImage::Format_RGB888);
+	// Configure texture and fill with red image
+	QImage red(80, 60, QImage::Format_RGBA8888);
 	red.fill(Qt::red);
-	m_texture = new QOpenGLTexture(red, QOpenGLTexture::DontGenerateMipMaps);
+	glEnable(GL_TEXTURE_2D);
+	glGenTextures(1, &m_texture);
+	glBindTexture(GL_TEXTURE_2D, m_texture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, red.width(), red.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, red.bits());
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
 	// Configure vertex data
 	m_vert.create();
@@ -173,7 +182,7 @@ void ImageWidget::paintGL()
 
 	// Draw scene
 	m_vao.bind();
-	m_texture->bind();
+	glBindTexture(GL_TEXTURE_2D, m_texture);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 	// Check for errors

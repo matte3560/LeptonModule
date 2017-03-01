@@ -42,7 +42,7 @@ class ImageWidget : public QOpenGLWidget, protected QOpenGLFunctions
 		QOpenGLBuffer m_vert;
 		QOpenGLBuffer m_uv;
 		QOpenGLBuffer m_index;
-		QOpenGLTexture *m_texture;
+		GLuint m_texture;
 		QMatrix4x4 m_mvp;
 
 		// Parameters
@@ -54,5 +54,4 @@ class ImageWidget : public QOpenGLWidget, protected QOpenGLFunctions
 
 		// Image parameters
 		QSize m_imgres;
-		QImage::Format m_imgformat;
 };
