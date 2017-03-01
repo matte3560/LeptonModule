@@ -33,15 +33,15 @@ void ImageWidget::setImage(QImage image)
 {
 	if (context() != 0)
 	{
-		if (image.format() != QImage::Format_RGBA8888)
-			image = image.convertToFormat(QImage::Format_RGBA8888);
+		if (image.format() != QImage::Format_RGB888)
+			image = image.convertToFormat(QImage::Format_RGB888);
 
 		// Check if size and format matches previous image
 		if (image.size() == m_imgres)
 		{
 			makeCurrent();
 			glBindTexture(GL_TEXTURE_2D, m_texture);
-			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, image.width(), image.height(), GL_RGBA, GL_UNSIGNED_BYTE,
+			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, image.width(), image.height(), GL_RGB, GL_UNSIGNED_BYTE,
 					image.bits());
 			doneCurrent();
 		}
@@ -49,7 +49,7 @@ void ImageWidget::setImage(QImage image)
 		{
 			makeCurrent();
 			glBindTexture(GL_TEXTURE_2D, m_texture);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.width(), image.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE,
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.width(), image.height(), 0, GL_RGB, GL_UNSIGNED_BYTE,
 					image.bits());
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -97,12 +97,12 @@ void ImageWidget::initializeGL()
 	m_program->bind();
 
 	// Configure texture and fill with red image
-	QImage red(80, 60, QImage::Format_RGBA8888);
+	QImage red(80, 60, QImage::Format_RGB888);
 	red.fill(Qt::red);
 	glEnable(GL_TEXTURE_2D);
 	glGenTextures(1, &m_texture);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, red.width(), red.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, red.bits());
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, red.width(), red.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, red.bits());
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
