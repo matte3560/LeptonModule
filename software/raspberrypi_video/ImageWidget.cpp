@@ -6,28 +6,34 @@
 
 ImageWidget::ImageWidget(QWidget *parent) : QOpenGLWidget(parent),
 	m_program(0),
-	m_vbo(QOpenGLBuffer::VertexBuffer),
+	m_vert(QOpenGLBuffer::VertexBuffer),
+	m_uv(QOpenGLBuffer::VertexBuffer),
 	m_index(QOpenGLBuffer::IndexBuffer),
+
 	m_fov(45.0f),
 	m_pitch(0.0f),
 	m_yaw(0.0f),
 	m_scale(1.0f),
 	m_aspect(80.0f/60.0f),
-	m_pos(0.0f, 0.0f, -3.0f)
+	m_pos(0.0f, 0.0f, -3.0f),
+
+	m_imgres(0,0),
+	m_imgformat(QImage::Format_Invalid)
 {
 }
 
 ImageWidget::~ImageWidget()
 {
 	delete m_program;
-	//delete m_texture;
+	delete m_texture;
 }
 
 
 // Slots
 
-void ImageWidget::setImage(QImage image) // TODO: Copy image to GL texture
+void ImageWidget::setImage(QImage image)
 {
+	m_texture->setData(image, QOpenGLTexture::DontGenerateMipMaps);
 }
 
 
@@ -44,24 +50,34 @@ void ImageWidget::initializeGL()
 	m_program = new QOpenGLShaderProgram();
 	m_program->addShaderFromSourceCode(QOpenGLShader::Vertex,
 			"attribute highp vec3 vertex;\n"
+			"attribute highp vec2 uv;\n"
+			"varying vec2 tex_coord;\n"
 			"uniform highp mat4 matrix;\n"
 			"void main(void)\n"
 			"{\n"
 			"   gl_Position = matrix * vec4(vertex, 1.0f);\n"
+			"   tex_coord = uv;\n"
 			"}");
 	m_program->addShaderFromSourceCode(QOpenGLShader::Fragment,
 			//"uniform mediump vec4 color;\n"
+			"varying vec2 tex_coord;\n"
+			"uniform sampler2D texture;\n"
 			"void main(void)\n"
 			"{\n"
-			"   gl_FragColor = vec4(1.0f, 1.0f, 0.0f, 1.0f);\n"
+			"   gl_FragColor = texture2D(texture, tex_coord);\n"
 			"}");
 	m_program->link();
 	qInfo() << "isLinked()" << m_program->isLinked();
 	qInfo() << "log()" << m_program->log();
 	m_program->bind();
 
+	// Create texture and fill with red image
+	QImage red(80, 60, QImage::Format_RGB888);
+	red.fill(Qt::red);
+	m_texture = new QOpenGLTexture(red, QOpenGLTexture::DontGenerateMipMaps);
+
 	// Configure vertex data
-	m_vbo.create();
+	m_vert.create();
 	{
 		GLfloat data[12] = {
 			-1.0f, -1.0f, 0.0f,
@@ -69,8 +85,19 @@ void ImageWidget::initializeGL()
 			1.0f, 1.0f, 0.0f,
 			-1.0f, 1.0f, 0.0f
 			};
-		m_vbo.bind();
-		m_vbo.allocate(&data, 12*sizeof(GLfloat));
+		m_vert.bind();
+		m_vert.allocate(&data, 12*sizeof(GLfloat));
+	}
+	m_uv.create();
+	{
+		GLfloat data[8] = {
+			0.0f, 1.0f,
+			1.0f, 1.0f,
+			1.0f, 0.0f,
+			0.0f, 0.0f,
+			};
+		m_uv.bind();
+		m_uv.allocate(&data, 8*sizeof(GLfloat));
 	}
 	m_index.create();
 	{
@@ -88,9 +115,13 @@ void ImageWidget::initializeGL()
 
 	// Set up array attrib pointer to vertex data
 	int location;
-	m_vbo.bind();
+	m_vert.bind();
 	location = m_program->attributeLocation("vertex");
 	glVertexAttribPointer(location, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(location);
+	m_uv.bind();
+	location = m_program->attributeLocation("uv");
+	glVertexAttribPointer(location, 2, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(location);
 
 	// Set up index array
@@ -125,6 +156,7 @@ void ImageWidget::paintGL()
 
 	// Draw scene
 	m_vao.bind();
+	m_texture->bind();
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 	// Check for errors

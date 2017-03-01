@@ -10,6 +10,10 @@
 #include <QMatrix4x4>
 #include <QVector3D>
 
+// Image related includes
+#include <QImage>
+#include <QSize>
+
 
 class ImageWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
@@ -31,7 +35,8 @@ class ImageWidget : public QOpenGLWidget, protected QOpenGLFunctions
 		// Variables related to OpenGL rendering
 		QOpenGLShaderProgram *m_program;
 		QOpenGLVertexArrayObject m_vao;
-		QOpenGLBuffer m_vbo;
+		QOpenGLBuffer m_vert;
+		QOpenGLBuffer m_uv;
 		QOpenGLBuffer m_index;
 		QOpenGLTexture *m_texture;
 		QMatrix4x4 m_mvp;
@@ -42,4 +47,8 @@ class ImageWidget : public QOpenGLWidget, protected QOpenGLFunctions
 		float m_scale;
 		float m_aspect;
 		QVector3D m_pos;
+
+		// Image parameters
+		QSize m_imgres;
+		QImage::Format m_imgformat;
 };
