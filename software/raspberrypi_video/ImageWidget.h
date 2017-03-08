@@ -8,7 +8,7 @@
 #include <QOpenGLBuffer>
 #include <QOpenGLTexture>
 #include <QMatrix4x4>
-#include <QVector3D>
+#include <QVector2D>
 
 // Image related includes
 #include <QImage>
@@ -25,6 +25,7 @@ class ImageWidget : public QOpenGLWidget, protected QOpenGLFunctions
 
 	public slots:
 		void setImage(QImage image);
+		void setParameters(float fov, float scale, float pitch, float yaw, QVector2D position);
 
 	protected:
 		// OpenGL
@@ -34,6 +35,9 @@ class ImageWidget : public QOpenGLWidget, protected QOpenGLFunctions
 
 		// Window fullscreen
 		void mouseDoubleClickEvent(QMouseEvent* event);
+
+	private:
+		void updateMVP();
 
 	private:
 		// Variables related to OpenGL rendering
@@ -49,8 +53,9 @@ class ImageWidget : public QOpenGLWidget, protected QOpenGLFunctions
 		float m_fov;
 		float m_pitch, m_yaw;
 		float m_scale;
-		float m_aspect;
-		QVector3D m_pos;
+		float m_img_aspect;
+		QVector2D m_pos;
+		QSize m_fb_res;
 
 		// Image parameters
 		QSize m_imgres;

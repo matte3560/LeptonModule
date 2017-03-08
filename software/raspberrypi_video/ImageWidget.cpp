@@ -14,8 +14,10 @@ ImageWidget::ImageWidget(QWidget *parent) : QOpenGLWidget(parent),
 	m_pitch(0.0f),
 	m_yaw(0.0f),
 	m_scale(1.0f),
-	m_aspect(80.0f/60.0f),
-	m_pos(0.0f, 0.0f, -3.0f),
+	m_img_aspect(1.0f),
+	m_pos(0.0f, 0.0f),
+
+	m_fb_res(0,0),
 
 	m_imgres(0,0)
 {
@@ -54,11 +56,24 @@ void ImageWidget::setImage(QImage image)
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			m_imgres = image.size();
+			m_img_aspect = image.width() / float(image.height());
 			doneCurrent();
 		}
 
 		update();
 	}
+}
+
+void ImageWidget::setParameters(float fov, float scale, float pitch, float yaw, QVector2D position)
+{
+	m_fov = fov;
+	m_scale = scale;
+	m_pitch = pitch;
+	m_yaw = yaw;
+	m_pos = position;
+
+	// Update MVP transform
+	updateMVP();
 }
 
 
@@ -160,19 +175,11 @@ void ImageWidget::initializeGL()
 
 void ImageWidget::resizeGL(int w, int h)
 {
-	QMatrix4x4 projection, scale, rotate, translate;
+	// Store new FB resolution
+	m_fb_res = QSize(w, h);
 
-	// Update projection matrix and other size related settings:
-	projection.perspective(m_fov, w / float(h), 0.01f, 10.0f);
-	scale.scale(m_scale, m_scale/m_aspect);
-	rotate.rotate(m_pitch, 0.0f, 1.0f);
-	rotate.rotate(m_yaw, 1.0f, 0.0f);
-	translate.translate(m_pos);
-
-	// Set MVP transform
-	m_mvp = projection * translate * rotate * scale;
-	int location = m_program->uniformLocation("matrix");
-	m_program->setUniformValue(location, m_mvp);
+	// Update MVP transform
+	updateMVP();
 }
 
 void ImageWidget::paintGL()
@@ -199,4 +206,23 @@ void ImageWidget::mouseDoubleClickEvent(QMouseEvent* event)
 		showNormal();
 	else
 		showFullScreen();
+}
+
+
+// Private
+void ImageWidget::updateMVP()
+{
+	QMatrix4x4 projection, scale, rotate, translate;
+
+	// Update projection matrix and other size related settings:
+	projection.perspective(m_fov, m_fb_res.width() / float(m_fb_res.height()), 0.01f, 10.0f);
+	scale.scale(m_scale, m_scale/m_img_aspect);
+	rotate.rotate(m_pitch, 0.0f, 1.0f);
+	rotate.rotate(m_yaw, 1.0f, 0.0f);
+	translate.translate(m_pos.x(), m_pos.y(), -3.0f);
+
+	// Set MVP transform
+	m_mvp = projection * translate * rotate * scale;
+	int location = m_program->uniformLocation("matrix");
+	m_program->setUniformValue(location, m_mvp);
 }
