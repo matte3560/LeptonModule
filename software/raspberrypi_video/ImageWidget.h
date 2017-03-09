@@ -25,7 +25,7 @@ class ImageWidget : public QOpenGLWidget, protected QOpenGLFunctions
 
 	public slots:
 		void setImage(QImage image);
-		void setParameters(float fov, float scale, float pitch, float yaw, QVector2D position);
+		void setParameters(double fov, double scale, double pitch, double yaw, QVector2D position);
 
 	protected:
 		// OpenGL

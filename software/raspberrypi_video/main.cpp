@@ -1,12 +1,16 @@
 #include <QApplication>
+#include <QtQuick>
 #include <QtDebug>
 
 // Widgets
 #include <QQuickWidget>
 #include <QWidget>
 #include <QVBoxLayout>
-#include <QUrl>
 #include <QPushButton>
+
+// Misc
+#include <QVector2D>
+#include <QUrl>
 
 // Local
 #include "LeptonThread.h"
@@ -31,6 +35,11 @@ int main( int argc, char **argv )
 
 	//create an image widget for the thermal images
 	ImageWidget imageWidget;
+	QObject::connect(projectionSettings->rootObject(),
+			SIGNAL(updateParameters(double,double,double,double,QVector2D)),
+			&imageWidget,
+			SLOT(setParameters(double,double,double,double,QVector2D))
+			);
 
 	//create a thread to gather SPI data
 	//when the thread emits updateImage, the image widget should update its image accordingly

@@ -64,7 +64,7 @@ void ImageWidget::setImage(QImage image)
 	}
 }
 
-void ImageWidget::setParameters(float fov, float scale, float pitch, float yaw, QVector2D position)
+void ImageWidget::setParameters(double fov, double scale, double pitch, double yaw, QVector2D position)
 {
 	m_fov = fov;
 	m_scale = scale;
@@ -73,7 +73,12 @@ void ImageWidget::setParameters(float fov, float scale, float pitch, float yaw, 
 	m_pos = position;
 
 	// Update MVP transform
+	makeCurrent();
 	updateMVP();
+	doneCurrent();
+
+	// Request redraw
+	update();
 }
 
 
@@ -217,8 +222,8 @@ void ImageWidget::updateMVP()
 	// Update projection matrix and other size related settings:
 	projection.perspective(m_fov, m_fb_res.width() / float(m_fb_res.height()), 0.01f, 10.0f);
 	scale.scale(m_scale, m_scale/m_img_aspect);
-	rotate.rotate(m_pitch, 0.0f, 1.0f);
-	rotate.rotate(m_yaw, 1.0f, 0.0f);
+	rotate.rotate(m_yaw, 0.0f, 1.0f);
+	rotate.rotate(m_pitch, 1.0f, 0.0f);
 	translate.translate(m_pos.x(), m_pos.y(), -3.0f);
 
 	// Set MVP transform

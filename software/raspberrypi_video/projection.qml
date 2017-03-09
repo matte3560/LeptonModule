@@ -4,6 +4,8 @@ import QtQuick.Controls 2.1
 Rectangle {
 	id: root
 
+	signal updateParameters(double fov, double scale, double pitch, double yaw, vector2d position)
+
 	property var absAngleLimit: 45.0
 	
 	Rectangle {
@@ -37,6 +39,13 @@ Rectangle {
 				from: -root.absAngleLimit
 				to: root.absAngleLimit
 				value: 0.0
+			}
+
+			Button {
+				text: "Update"
+				onClicked: {
+					root.updateParameters(45, 1, pitch.value, yaw.value, Qt.vector2d(0,0))
+				}
 			}
 		}
 	}
