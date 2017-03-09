@@ -10,6 +10,7 @@ Rectangle {
 	property alias from: slider.from
 	property alias to: slider.to
 	property alias value: slider.value
+	property var decimals: 1
 
 	Label {
 		id: label
@@ -33,7 +34,7 @@ Rectangle {
 			anchors.centerIn: parent
 
 			inputMethodHints: Qt.ImhFormattedNumbersOnly
-			text: slider.value.toFixed(1)
+			text: slider.value.toFixed(root.decimals)
 
 			validator: DoubleValidator {
 				bottom: slider.from
@@ -58,5 +59,7 @@ Rectangle {
 		id: slider
 		anchors { left: label.right; right: number_bg.left }
 		anchors.verticalCenter: parent.verticalCenter
+		stepSize: 1 / Math.pow(10, decimals)
+		snapMode: Slider.SnapOnRelease
 	}
 }
