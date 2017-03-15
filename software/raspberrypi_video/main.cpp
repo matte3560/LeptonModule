@@ -29,6 +29,11 @@ int main( int argc, char **argv )
 	projectionSettings->setResizeMode(QQuickWidget::SizeRootObjectToView);
 	optionsLayout->addWidget(projectionSettings);
 
+	// Add image settings to options layout
+	QQuickWidget* imageSettings = new QQuickWidget(QUrl("image.qml"));
+	imageSettings->setResizeMode(QQuickWidget::SizeRootObjectToView);
+	optionsLayout->addWidget(imageSettings);
+
 	//create a FFC button
 	QPushButton* button1 = new QPushButton("Perform FFC");
 	optionsLayout->addWidget(button1);
