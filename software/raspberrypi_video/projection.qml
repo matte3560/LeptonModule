@@ -3,6 +3,8 @@ import QtQuick.Controls 2.1
 
 Rectangle {
 	id: root
+	width: 400
+	height: 400
 
 	signal updateParameters(double fov, double scale, double pitch, double yaw, vector2d position)
 

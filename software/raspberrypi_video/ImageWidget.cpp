@@ -57,6 +57,7 @@ void ImageWidget::setImage(QImage image)
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			m_imgres = image.size();
 			m_img_aspect = image.width() / float(image.height());
+			updateMVP();
 			doneCurrent();
 		}
 
