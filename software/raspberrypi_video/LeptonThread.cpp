@@ -10,7 +10,9 @@
 #define FRAME_SIZE_UINT16 (PACKET_SIZE_UINT16*PACKETS_PER_FRAME)
 #define FPS 27;
 
-LeptonThread::LeptonThread() : QThread()
+LeptonThread::LeptonThread() : QThread(),
+	m_range_min(0),
+	m_range_max(1 << 14)
 {
 }
 
@@ -55,8 +57,8 @@ void LeptonThread::run()
 		frameBuffer = (uint16_t *)result;
 		int row, column;
 		uint16_t value;
-		uint16_t minValue = 65535;
-		uint16_t maxValue = 0;
+		uint16_t minValue = (uint16_t)m_range_max;
+		uint16_t maxValue = (uint16_t)m_range_min;
 
 		
 		for(int i=0;i<FRAME_SIZE_UINT16;i++) {
@@ -106,4 +108,10 @@ void LeptonThread::run()
 void LeptonThread::performFFC() {
 	//perform FFC
 	lepton_perform_ffc();
+}
+
+
+void LeptonThread::setParameters(int range_min, int range_max) {
+	m_range_min = range_min;
+	m_range_max = range_max;
 }

@@ -16,27 +16,30 @@
 
 class LeptonThread : public QThread
 {
-  Q_OBJECT;
+	Q_OBJECT;
 
-public:
-  LeptonThread();
-  ~LeptonThread();
+	public:
+	LeptonThread();
+	~LeptonThread();
 
-  void run();
+	void run();
 
-public slots:
-  void performFFC();
+	public slots:
+	void performFFC();
+	void setParameters(int range_min, int range_max);
 
-signals:
-  void updateText(QString);
-  void updateImage(QImage);
+	signals:
+	void updateText(QString);
+	void updateImage(QImage);
 
-private:
+	private:
 
-  QImage myImage;
+	QImage myImage;
 
-  uint8_t result[PACKET_SIZE*PACKETS_PER_FRAME];
-  uint16_t *frameBuffer;
+	uint8_t result[PACKET_SIZE*PACKETS_PER_FRAME];
+	uint16_t *frameBuffer;
+
+	int m_range_min, m_range_max;
 
 };
 

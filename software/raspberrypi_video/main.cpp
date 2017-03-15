@@ -40,15 +40,23 @@ int main( int argc, char **argv )
 
 	//create an image widget for the thermal images
 	ImageWidget imageWidget;
+
+	//create a thread to gather SPI data
+	LeptonThread thread;
+
+	// Connect signals related to parameters
 	QObject::connect(projectionSettings->rootObject(),
 			SIGNAL(updateParameters(double,double,double,double,QVector2D)),
 			&imageWidget,
 			SLOT(setParameters(double,double,double,double,QVector2D))
 			);
+	QObject::connect(imageSettings->rootObject(),
+			SIGNAL(updateParameters(int,int)),
+			&thread,
+			SLOT(setParameters(int,int))
+			);
 
-	//create a thread to gather SPI data
 	//when the thread emits updateImage, the image widget should update its image accordingly
-	LeptonThread thread;
 	QObject::connect(&thread, SIGNAL(updateImage(QImage)), &imageWidget, SLOT(setImage(QImage)));
 	
 	//connect ffc button to the thread's ffc action
