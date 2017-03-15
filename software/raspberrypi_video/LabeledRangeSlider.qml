@@ -50,7 +50,7 @@ Rectangle {
 			}
 
 			onAccepted: {
-				slider.first.value = number.text
+				slider.first.value = number_min.text
 			}
 
 			MouseArea {
@@ -85,7 +85,7 @@ Rectangle {
 			}
 
 			onAccepted: {
-				slider.second.value = number.text
+				slider.second.value = number_max.text
 			}
 
 			MouseArea {

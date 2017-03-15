@@ -8,8 +8,8 @@ Rectangle {
 
 	signal updateParameters(int range_min, int range_max)
 
-	property var absAngleLimit: 45
-	property var absOffsetLimit: 0.75
+	property var default_first: 7500
+	property var default_second: 8500
 
 	Rectangle {
 		anchors.fill: parent
@@ -32,10 +32,10 @@ Rectangle {
 			LabeledRangeSlider {
 				id: temp_range
 				text: "Range"
-				from: 0
-				to: 1 << 14 // 2^14
-				first.value: 8500
-				second.value: 10000
+				from: 7000
+				to: 9000
+				first.value: default_first
+				second.value: default_second
 			}
 
 			Row {
@@ -50,8 +50,8 @@ Rectangle {
 				Button {
 					text: "Reset"
 					onClicked: {
-						temp_range.first.value = 8500
-						temp_range.second.value = 10000
+						temp_range.first.value = default_first
+						temp_range.second.value = default_second
 						root.updateParameters(temp_range.first.value, temp_range.second.value)
 					}
 				}
