@@ -28,6 +28,7 @@ class LeptonThread : public QThread
 	void performFFC();
 	void setParameters(int range_min, int range_max);
 	void calibrate();
+	void setLUT(int id);
 
 	signals:
 	void updateText(QString);
@@ -45,6 +46,7 @@ class LeptonThread : public QThread
 
 	int m_range_min, m_range_max;
 	int m_calibration;
+	int m_lut_id;
 	bool m_recalibrate;
 
 };

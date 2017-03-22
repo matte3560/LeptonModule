@@ -1,5 +1,6 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.1
+import QtQml.Models 2.2
 
 Rectangle {
 	id: root
@@ -7,10 +8,12 @@ Rectangle {
 	height: 400
 
 	signal updateParameters(int range_min, int range_max)
+	signal updateLUT(int index)
 	signal requestCalibration()
 
 	property var default_first: -250
 	property var default_second: 750
+	property var default_lut: 2
 
 	Rectangle {
 		anchors.fill: parent
@@ -30,6 +33,18 @@ Rectangle {
 
 			spacing: 2
 
+			LabeledDropdown {
+				id: lut_dropdown
+				text: "LUT"
+				textRole: "key"
+				model: ListModel {
+					ListElement { key: "Rainbow"; value: 0 }
+					ListElement { key: "Grayscale"; value: 1 }
+					ListElement { key: "Ironblack"; value: 2 }
+				}
+				currentIndex: default_lut
+			}
+
 			LabeledRangeSlider {
 				id: temp_range
 				text: "Range"
@@ -46,6 +61,7 @@ Rectangle {
 					text: "Update"
 					onClicked: {
 						root.updateParameters(temp_range.first.value, temp_range.second.value)
+						root.updateLUT(lut_dropdown.currentIndex)
 					}
 				}
 				Button {
@@ -59,7 +75,9 @@ Rectangle {
 					onClicked: {
 						temp_range.first.value = default_first
 						temp_range.second.value = default_second
+						lut_dropdown.currentIndex = default_lut
 						root.updateParameters(temp_range.first.value, temp_range.second.value)
+						root.updateLUT(lut_dropdown.currentIndex)
 					}
 				}
 			}

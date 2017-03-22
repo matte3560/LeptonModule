@@ -14,7 +14,8 @@ LeptonThread::LeptonThread() : QThread(),
 	m_range_min(-1000),
 	m_range_max(1000),
 	m_calibration(8000),
-	m_recalibrate(false)
+	m_recalibrate(false),
+	m_lut_id(2)
 {
 }
 
@@ -98,7 +99,7 @@ void LeptonThread::run()
 				lut_index = (frameBuffer[i] - min_value) * scale;
 
 			// Get color in LUT
-			const int *colormap = colormap_ironblack;
+			const int *colormap = colormaps[m_lut_id];
 			QRgb color = qRgb(colormap[3*lut_index], colormap[3*lut_index+1], colormap[3*lut_index+2]);
 
 			// Set pixel in output image
@@ -153,3 +154,7 @@ void LeptonThread::calibrate()
 	m_recalibrate = true;
 }
 
+void LeptonThread::setLUT(int id)
+{
+	m_lut_id = id;
+}

@@ -56,6 +56,11 @@ int main( int argc, char **argv )
 			SLOT(setParameters(int,int))
 			);
 	QObject::connect(imageSettings->rootObject(),
+			SIGNAL(updateLUT(int)),
+			&thread,
+			SLOT(setLUT(int))
+			);
+	QObject::connect(imageSettings->rootObject(),
 			SIGNAL(requestCalibration()),
 			&thread,
 			SLOT(calibrate())
