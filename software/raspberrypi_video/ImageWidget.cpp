@@ -15,7 +15,7 @@ ImageWidget::ImageWidget(QWidget *parent) : QOpenGLWidget(parent),
 	m_yaw(0.0f),
 	m_scale(1.0f),
 	m_img_aspect(1.0f),
-	m_pos(0.0f, 0.0f),
+	m_pos(0.0f, 0.0f, 1.0f),
 
 	m_fb_res(0,0),
 
@@ -65,7 +65,7 @@ void ImageWidget::setImage(QImage image)
 	}
 }
 
-void ImageWidget::setParameters(double fov, double scale, double pitch, double yaw, QVector2D position)
+void ImageWidget::setParameters(double fov, double scale, double pitch, double yaw, QVector3D position)
 {
 	m_fov = fov;
 	m_scale = scale;
@@ -222,10 +222,10 @@ void ImageWidget::updateMVP()
 
 	// Update projection matrix and other size related settings:
 	projection.perspective(m_fov, m_fb_res.width() / float(m_fb_res.height()), 0.01f, 10.0f);
-	scale.scale(m_scale, m_scale/m_img_aspect);
+	scale.scale((m_scale*m_img_aspect)/2, m_scale/2);
 	rotate.rotate(m_yaw, 0.0f, 1.0f);
 	rotate.rotate(m_pitch, 1.0f, 0.0f);
-	translate.translate(m_pos.x(), m_pos.y(), -3.0f);
+	translate.translate(m_pos.x(), m_pos.y(), -m_pos.z());
 
 	// Set MVP transform
 	m_mvp = projection * translate * rotate * scale;

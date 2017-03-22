@@ -6,10 +6,20 @@ Rectangle {
 	width: 400
 	height: 400
 
-	signal updateParameters(double fov, double scale, double pitch, double yaw, vector2d position)
+	signal updateParameters(double fov, double scale, double pitch, double yaw, vector3d position)
 
 	property var absAngleLimit: 45
 	property var absOffsetLimit: 0.75
+
+	property var defaultScale: 1
+	property var defaultXOff: 0
+	property var defaultYOff: 0
+	property var defaultPFoV: 45
+	property var defaultTFoV: 35
+	property var defaultPitch: 0
+	property var defaultYaw: 0
+	property var defaultPDist: 3
+	property var defaultTDist: 2
 
 	Rectangle {
 		anchors.fill: parent
@@ -30,11 +40,18 @@ Rectangle {
 			spacing: 2
 
 			LabeledSlider {
-				id: fov
-				text: "FoV"
+				id: pfov
+				text: "P. FoV"
 				from: 20
 				to: 90
-				value: 45
+				value: defaultPFoV
+			}
+			LabeledSlider {
+				id: tfov
+				text: "T. FoV"
+				from: 20
+				to: 90
+				value: defaultTFoV
 			}
 			LabeledSlider {
 				id: scale
@@ -42,21 +59,21 @@ Rectangle {
 				from: 0.2
 				to: 2
 				decimals: 2
-				value: 1
+				value: defaultScale
 			}
 			LabeledSlider {
 				id: pitch
 				text: "Pitch"
 				from: -root.absAngleLimit
 				to: root.absAngleLimit
-				value: 0
+				value: defaultPitch
 			}
 			LabeledSlider {
 				id: yaw
 				text: "Yaw"
 				from: -root.absAngleLimit
 				to: root.absAngleLimit
-				value: 0
+				value: defaultYaw
 			}
 			LabeledSlider {
 				id: pos_x
@@ -64,7 +81,7 @@ Rectangle {
 				from: -root.absOffsetLimit
 				to: root.absOffsetLimit
 				decimals: 2
-				value: 0
+				value: defaultXOff
 			}
 			LabeledSlider {
 				id: pos_y
@@ -72,7 +89,23 @@ Rectangle {
 				from: -root.absOffsetLimit
 				to: root.absOffsetLimit
 				decimals: 2
-				value: 0
+				value: defaultYOff
+			}
+			LabeledSlider {
+				id: p_dist
+				text: "P. Dist"
+				from: 1
+				to: 8
+				decimals: 2
+				value: defaultPDist
+			}
+			LabeledSlider {
+				id: t_dist
+				text: "T. Dist"
+				from: 1
+				to: 8
+				decimals: 2
+				value: defaultTDist
 			}
 
 			Row {
@@ -81,19 +114,26 @@ Rectangle {
 				Button {
 					text: "Update"
 					onClicked: {
-						root.updateParameters(fov.value, scale.value, pitch.value, yaw.value, Qt.vector2d(pos_x.value,pos_y.value))
+						root.updateParameters(
+							pfov.value, scale.value*2*Math.tan(tfov.value * Math.PI/180)*t_dist.value,
+							pitch.value, yaw.value, Qt.vector3d(pos_x.value, pos_y.value, p_dist.value))
 					}
 				}
 				Button {
 					text: "Reset"
 					onClicked: {
-						fov.value = 45
-						scale.value = 1
-						pitch.value = 0
-						yaw.value = 0
-						pos_x.value = 0
-						pos_y.value = 0
-						root.updateParameters(fov.value, scale.value, pitch.value, yaw.value, Qt.vector2d(pos_x.value,pos_y.value))
+						pfov.value = defaultPFoV
+						tfov.value = defaultTFoV
+						scale.value = defaultScale
+						pitch.value = defaultPitch
+						yaw.value = defaultYaw
+						pos_x.value = defaultXOff
+						pos_y.value = defaultYOff
+						p_dist.value = defaultPDist
+						t_dist.value = defaultTDist
+						root.updateParameters(
+							pfov.value, scale.value*2*Math.tan(tfov.value * Math.PI/180)*t_dist.value,
+							pitch.value, yaw.value, Qt.vector3d(pos_x.value, pos_y.value, p_dist.value))
 					}
 				}
 			}

@@ -8,7 +8,7 @@
 #include <QOpenGLBuffer>
 #include <QOpenGLTexture>
 #include <QMatrix4x4>
-#include <QVector2D>
+#include <QVector3D>
 
 // Image related includes
 #include <QImage>
@@ -25,7 +25,7 @@ class ImageWidget : public QOpenGLWidget, protected QOpenGLFunctions
 
 	public slots:
 		void setImage(QImage image);
-		void setParameters(double fov, double scale, double pitch, double yaw, QVector2D position);
+		void setParameters(double fov, double scale, double pitch, double yaw, QVector3D position);
 
 	protected:
 		// OpenGL
@@ -54,7 +54,7 @@ class ImageWidget : public QOpenGLWidget, protected QOpenGLFunctions
 		float m_pitch, m_yaw;
 		float m_scale;
 		float m_img_aspect;
-		QVector2D m_pos;
+		QVector3D m_pos;
 		QSize m_fb_res;
 
 		// Image parameters

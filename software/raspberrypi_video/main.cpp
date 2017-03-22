@@ -46,9 +46,9 @@ int main( int argc, char **argv )
 
 	// Connect signals related to parameters
 	QObject::connect(projectionSettings->rootObject(),
-			SIGNAL(updateParameters(double,double,double,double,QVector2D)),
+			SIGNAL(updateParameters(double,double,double,double,QVector3D)),
 			&imageWidget,
-			SLOT(setParameters(double,double,double,double,QVector2D))
+			SLOT(setParameters(double,double,double,double,QVector3D))
 			);
 	QObject::connect(imageSettings->rootObject(),
 			SIGNAL(updateParameters(int,int)),
