@@ -55,6 +55,11 @@ int main( int argc, char **argv )
 			&thread,
 			SLOT(setParameters(int,int))
 			);
+	QObject::connect(imageSettings->rootObject(),
+			SIGNAL(requestCalibration()),
+			&thread,
+			SLOT(calibrate())
+			);
 
 	//when the thread emits updateImage, the image widget should update its image accordingly
 	QObject::connect(&thread, SIGNAL(updateImage(QImage)), &imageWidget, SLOT(setImage(QImage)));

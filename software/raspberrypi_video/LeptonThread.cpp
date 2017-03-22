@@ -11,13 +11,17 @@
 #define FPS 27;
 
 LeptonThread::LeptonThread() : QThread(),
-	m_range_min(0),
-	m_range_max(1 << 14)
+	m_range_min(-1000),
+	m_range_max(1000),
+	m_calibration(8000),
+	m_recalibrate(false)
 {
 }
 
 LeptonThread::~LeptonThread() {
 }
+
+// Public
 
 void LeptonThread::run()
 {
@@ -55,11 +59,6 @@ void LeptonThread::run()
 		}
 
 		frameBuffer = (uint16_t *)result;
-		int row, column;
-		uint16_t value;
-		uint16_t minValue = (uint16_t)m_range_min;
-		uint16_t maxValue = (uint16_t)m_range_max;
-
 		
 		for(int i=0;i<FRAME_SIZE_UINT16;i++) {
 			//skip the first 2 uint16_t's of every packet, they're 4 header bytes
@@ -71,28 +70,40 @@ void LeptonThread::run()
 			int temp = result[i*2];
 			result[i*2] = result[i*2+1];
 			result[i*2+1] = temp;
-			
-			value = frameBuffer[i];
-			if(value > maxValue) {
-				maxValue = value;
-			}
-			if(value < minValue) {
-				minValue = value;
-			}
 		}
 
-		float diff = maxValue - minValue;
+		// Check if calibration needs to be updated
+		if ( m_recalibrate )
+		{
+			performCalibration( frameBuffer );
+			m_recalibrate = false;
+		}
+
+		int max_value = m_calibration + m_range_max;
+		int min_value = m_calibration + m_range_min;
+		float diff = max_value - min_value;
 		float scale = 255/diff;
-		QRgb color;
 		for(int i=0;i<FRAME_SIZE_UINT16;i++) {
 			if(i % PACKET_SIZE_UINT16 < 2) {
 				continue;
 			}
-			value = (frameBuffer[i] - minValue) * scale;
+
+			// Calculate LUT index based on framebuffer value
+			int lut_index;
+			if ( frameBuffer[i] > (uint16_t)max_value )
+				lut_index = 255;
+			else if ( frameBuffer[i] < (uint16_t)min_value )
+				lut_index = 0;
+			else
+				lut_index = (frameBuffer[i] - min_value) * scale;
+
+			// Get color in LUT
 			const int *colormap = colormap_ironblack;
-			color = qRgb(colormap[3*value], colormap[3*value+1], colormap[3*value+2]);
-			column = (i % PACKET_SIZE_UINT16 ) - 2;
-			row = i / PACKET_SIZE_UINT16;
+			QRgb color = qRgb(colormap[3*lut_index], colormap[3*lut_index+1], colormap[3*lut_index+2]);
+
+			// Set pixel in output image
+			int column = (i % PACKET_SIZE_UINT16 ) - 2;
+			int row = i / PACKET_SIZE_UINT16;
 			myImage.setPixel(column, row, color);
 		}
 
@@ -105,13 +116,40 @@ void LeptonThread::run()
 	SpiClosePort(port);
 }
 
+
+// Private
+void LeptonThread::performCalibration(const uint16_t* buffer)
+{
+	const int num_pixels = 80*60;
+	float average = 0;
+
+	// Calculate the average value in the framebuffer and update calibration
+	for( int i = 0; i < FRAME_SIZE_UINT16; i++ ) {
+		//skip the first 2 uint16_t's of every packet, they're 4 header bytes
+		if(i % PACKET_SIZE_UINT16 < 2)
+			continue;
+
+		average += (float)buffer[i] / num_pixels;
+	}
+	m_calibration = average;
+}
+
+
+// Slots
+
 void LeptonThread::performFFC() {
 	//perform FFC
 	lepton_perform_ffc();
 }
 
-
 void LeptonThread::setParameters(int range_min, int range_max) {
 	m_range_min = range_min;
 	m_range_max = range_max;
 }
+
+void LeptonThread::calibrate()
+{
+	// Set flag to recalibrate zero temp on next recieved frame
+	m_recalibrate = true;
+}
+

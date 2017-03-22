@@ -27,10 +27,14 @@ class LeptonThread : public QThread
 	public slots:
 	void performFFC();
 	void setParameters(int range_min, int range_max);
+	void calibrate();
 
 	signals:
 	void updateText(QString);
 	void updateImage(QImage);
+
+	private:
+	void performCalibration(const uint16_t* buffer);
 
 	private:
 
@@ -40,6 +44,8 @@ class LeptonThread : public QThread
 	uint16_t *frameBuffer;
 
 	int m_range_min, m_range_max;
+	int m_calibration;
+	bool m_recalibrate;
 
 };
 

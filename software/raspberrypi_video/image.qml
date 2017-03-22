@@ -7,9 +7,10 @@ Rectangle {
 	height: 400
 
 	signal updateParameters(int range_min, int range_max)
+	signal requestCalibration()
 
-	property var default_first: 7500
-	property var default_second: 8500
+	property var default_first: -250
+	property var default_second: 750
 
 	Rectangle {
 		anchors.fill: parent
@@ -32,8 +33,8 @@ Rectangle {
 			LabeledRangeSlider {
 				id: temp_range
 				text: "Range"
-				from: 7000
-				to: 9000
+				from: -1000
+				to: 2000
 				first.value: default_first
 				second.value: default_second
 			}
@@ -45,6 +46,12 @@ Rectangle {
 					text: "Update"
 					onClicked: {
 						root.updateParameters(temp_range.first.value, temp_range.second.value)
+					}
+				}
+				Button {
+					text: "Calibrate"
+					onClicked: {
+						root.requestCalibration()
 					}
 				}
 				Button {
