@@ -5,7 +5,7 @@ import QtQml.Models 2.2
 Rectangle {
 	id: root
 	width: 400
-	height: 400
+	height: 350
 
 	signal updateParameters(int range_min, int range_max)
 	signal updateLUT(int index)
