@@ -14,8 +14,8 @@ LeptonThread::LeptonThread() : QThread(),
 	m_range_min(-1000),
 	m_range_max(1000),
 	m_calibration(8000),
-	m_recalibrate(false),
-	m_lut_id(2)
+	m_lut_id(2),
+	m_recalibrate(false)
 {
 }
 
