@@ -115,7 +115,7 @@ Rectangle {
 					text: "Update"
 					onClicked: {
 						root.updateParameters(
-							pfov.value, scale.value*2*Math.tan(tfov.value * Math.PI/180)*t_dist.value,
+							pfov.value, scale.value*2*Math.tan((tfov.value/2) * Math.PI/180)*t_dist.value,
 							pitch.value, yaw.value, Qt.vector3d(pos_x.value, pos_y.value, p_dist.value))
 					}
 				}
@@ -132,7 +132,7 @@ Rectangle {
 						p_dist.value = defaultPDist
 						t_dist.value = defaultTDist
 						root.updateParameters(
-							pfov.value, scale.value*2*Math.tan(tfov.value * Math.PI/180)*t_dist.value,
+							pfov.value, scale.value*2*Math.tan((tfov.value/2) * Math.PI/180)*t_dist.value,
 							pitch.value, yaw.value, Qt.vector3d(pos_x.value, pos_y.value, p_dist.value))
 					}
 				}
